@@ -1,0 +1,2204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthDoc Compare - Professional Document Comparison</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Poppins:wght@300;400;500;600;700&family=IBM+Plex+Serif:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #0d5d56;
+      --primary-light: #14b8a6;
+      --accent: #d97706;
+      --success-add: #10b981;
+      --danger-remove: #ef4444;
+      --neutral-dark: #1f2937;
+      --neutral-light: #f3f4f6;
+      --border: #e5e7eb;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecf0f1 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(15, 118, 110, 0.15);
+      border-bottom: 3px solid var(--accent);
+    }
+
+    .header-content {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .header-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      letter-spacing: -0.5px;
+    }
+
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .header-tagline {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-top: 0.3rem;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Upload Section */
+    .upload-section {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      border: 2px dashed var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .upload-section:hover {
+      border-color: var(--primary);
+      box-shadow: 0 8px 24px rgba(15, 118, 110, 0.12);
+    }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .upload-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: var(--neutral-light);
+    }
+
+    .upload-box:hover {
+      border-color: var(--primary);
+      background: rgba(15, 118, 110, 0.05);
+    }
+
+    .upload-box input[type="file"] {
+      display: none;
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      transition: transform 0.3s ease;
+    }
+
+    .upload-box:hover .upload-icon {
+      transform: scale(1.1);
+    }
+
+    .upload-box p {
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(15, 118, 110, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--neutral-light);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: white;
+      border-color: var(--primary);
+    }
+
+    .btn-success {
+      background: var(--success-add);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger-remove);
+      color: white;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Document Selection */
+    .doc-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .doc-select-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .doc-select-group label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+
+    .doc-select-group select {
+      padding: 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: border-color 0.3s ease;
+    }
+
+    .doc-select-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+    }
+
+    /* Main Content */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 2rem;
+      align-items: stretch;
+    }
+
+    .column {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      height: 800px;
+      min-height: 800px;
+    }
+
+    .column-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 1.2rem;
+      font-weight: 700;
+      font-size: 1rem;
+      border-bottom: 3px solid var(--accent);
+    }
+
+    .column-header.compare {
+      background: linear-gradient(135deg, var(--accent) 0%, #b45309 100%);
+    }
+
+    .column-header.combined {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    }
+
+    .column-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 1.5rem;
+      font-family: 'IBM Plex Serif', serif;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      word-wrap: break-word;
+    }
+
+    .column-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .column-body::-webkit-scrollbar-track {
+      background: var(--neutral-light);
+    }
+
+    .column-body::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .column-body::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
+
+    .editable {
+      min-height: 300px;
+      outline: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .line-container { min-height:300px; }
+    .line-content { padding:8px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .line-content[contenteditable="false"] {
+      background: rgba(248, 250, 252, 0.4);
+      cursor: default;
+    }
+    .editor-toolbar {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      align-items: center;
+    }
+    .editor-panel {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      gap: 0.75rem;
+    }
+    .editor-panel.active { display: grid; }
+    .editor-panel .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 140px;
+      gap: 0.75rem;
+      align-items: end;
+    }
+    .editor-panel .field-row.single {
+      grid-template-columns: 1fr;
+    }
+    .editor-panel label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      color: var(--text-primary);
+    }
+    .editor-panel input, .editor-panel select {
+      width: 100%;
+      padding: 0.75rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font: inherit;
+    }
+    .editor-panel .actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .search-hit {
+      background: rgba(251, 191, 36, 0.45);
+      border-radius: 2px;
+    }
+
+    .editable:focus {
+      background: rgba(15, 118, 110, 0.02);
+    }
+
+    /* Word Diff Styling */
+    .word {
+      display: inline;
+      margin-right: 0.3rem;
+      padding: 0.15rem 0.3rem;
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .word.added {
+      background-color: rgba(16, 185, 129, 0.2);
+      color: var(--success-add);
+      font-weight: 600;
+    }
+
+    .word.added::before {
+      content: '+';
+      color: var(--success-add);
+      font-weight: 700;
+      margin-right: 0.2rem;
+    }
+
+    .word.removed {
+      background-color: rgba(239, 68, 68, 0.2);
+      color: var(--danger-remove);
+      text-decoration: line-through;
+      font-weight: 600;
+    }
+
+    .word.removed::before {
+      content: '-';
+      color: var(--danger-remove);
+      font-weight: 700;
+      margin-right: 0.2rem;
+    }
+
+    .word.same {
+      color: inherit;
+    }
+
+    /* Statistics Panel */
+    .stats-panel {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px;
+      background: var(--neutral-light);
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.3rem;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* AI Analysis */
+    .analysis-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .analysis-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .analysis-card {
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
+      background: var(--neutral-light);
+    }
+
+    .analysis-card h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+      color: var(--text-primary);
+    }
+
+    .analysis-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Documents List */
+    .documents-list {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .doc-item {
+      padding: 0.8rem;
+      margin-bottom: 0.8rem;
+      background: var(--neutral-light);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .doc-item:hover {
+      background: rgba(15, 118, 110, 0.1);
+      transform: translateX(4px);
+    }
+
+    .doc-icon {
+      font-size: 1.2rem;
+    }
+
+    .doc-name {
+      flex: 1;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .doc-remove {
+      cursor: pointer;
+      color: var(--danger-remove);
+      font-weight: 700;
+    }
+
+    /* Loading & Messages */
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .message {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-add);
+      border-left: 4px solid var(--success-add);
+    }
+
+    .message.error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger-remove);
+      border-left: 4px solid var(--danger-remove);
+    }
+
+    .message.info {
+      background: rgba(15, 118, 110, 0.1);
+      color: var(--primary);
+      border-left: 4px solid var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 1400px) {
+      .main-content {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+
+      .upload-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+      }
+
+      .doc-selector {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+      color: var(--text-secondary);
+      gap: 1rem;
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      opacity: 0.3;
+    }
+
+    .empty-text {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    /* Page view */
+    .page-view {
+      display: none;
+      gap: 16px;
+      align-items: stretch;
+      width: 100%;
+    }
+
+    .page {
+      flex: 1 1 0;
+      min-height: 0;
+      background: white;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.06);
+      padding: 28px;
+      border-radius: 6px;
+      overflow: visible;
+      font-family: 'IBM Plex Serif', serif;
+      line-height: 1.6;
+    }
+
+    .page .doc-title { font-weight:700; margin-bottom:8px; }
+    .word-highlight {
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+      background: rgba(59,130,246,0.08);
+    }
+    .format-target {
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.22);
+      background: rgba(59,130,246,0.16) !important;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    .combined-columns {
+      display:flex; gap:12px; align-items:flex-start;
+    }
+    .combined-col {
+      background: rgba(255,255,255,0.9);
+      padding: 8px; border-radius:6px; flex:1; box-shadow:0 2px 8px rgba(0,0,0,0.04); min-width:200px; display:flex; flex-direction:column; min-height:0;
+    }
+    .col-header { display:flex; justify-content:space-between; align-items:center; font-weight:700; margin-bottom:8px; }
+    .col-list { flex:1; min-height:0; overflow:auto; max-height:none; }
+    .navigator-panel {
+      margin-top: 1.5rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      padding: 1rem;
+    }
+    #combinedContent {
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      min-height: 0;
+    }
+    #combinedContent > div {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      height: 100%;
+    }
+    /* Search highlight styling */
+    .search-highlight {
+      background: #fff59d;
+      padding: 0 2px;
+      border-radius: 2px;
+      color: #111827;
+    }
+    /* Formatting change markers */
+    .format-bold { box-shadow: inset 0 -2px 0 rgba(16,185,129,0.15); }
+    .format-italic { font-style: italic; outline: 1px dashed rgba(59,130,246,0.12); }
+    .format-color { box-shadow: 0 0 0 3px rgba(236,72,153,0.06); }
+    .format-change { transition: background 0.2s ease; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div>
+        <div class="header-title">
+          <div class="header-icon">📋</div>
+          <div>
+            <div>HealthDoc Compare</div>
+            <div class="header-tagline">Professional Document Comparison System</div>
+          </div>
+        </div>
+      </div>
+      <div class="header-buttons">
+        <button class="btn btn-secondary" onclick="openDocsList()">📂 Documents</button>
+        <button class="btn btn-secondary" id="realtimeToggleBtn" onclick="toggleRealtime()">⏱️ Real-time: Off</button>
+        <button class="btn btn-secondary" id="findReplaceBtn" onclick="toggleFindReplacePanel()">🔎 Find/Replace</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Upload Section -->
+    <div class="upload-section">
+      <h2 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📁 Upload Documents</span>
+      </h2>
+      
+      <div class="upload-grid">
+        <div class="upload-box" onclick="document.getElementById('fileInput1').click()">
+          <div class="upload-icon">📄</div>
+          <input type="file" id="fileInput1" accept=".pdf,.txt,.doc,.docx" onchange="handleFileUpload(event, 'base')">
+          <p>Upload Base Document</p>
+          <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.7;">PDF, TXT supported</p>
+        </div>
+
+        <div class="upload-box" onclick="document.getElementById('fileInput2').click()">
+          <div class="upload-icon">📄</div>
+          <input type="file" id="fileInput2" accept=".pdf,.txt,.doc,.docx" onchange="handleFileUpload(event, 'compare')">
+          <p>Upload Document to Compare</p>
+          <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.7;">PDF, TXT supported</p>
+        </div>
+      </div>
+
+      <!-- Document Selection -->
+      <div class="doc-selector" id="docSelector" style="display: none;">
+        <div class="doc-select-group">
+          <label for="baseDocSelect">Base Document</label>
+          <select id="baseDocSelect" onchange="selectBaseDocument()">
+            <option value="">-- Select Base Document --</option>
+          </select>
+        </div>
+        <div class="doc-select-group">
+          <label for="compareDocSelect">Compare Document</label>
+          <select id="compareDocSelect" onchange="selectCompareDocument()">
+            <option value="">-- Select Document to Compare --</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="button-group" style="margin-top: 1.5rem;">
+        <button class="btn btn-primary" onclick="compareDocuments()" id="compareBtn" disabled>
+          <span>🔍 Compare</span>
+        </button>
+        <button class="btn btn-secondary" id="toggleEditBtn" onclick="toggleEditMode()">✏️ Edit Mode: On</button>
+        <button class="btn btn-secondary" id="toggleFindReplaceBtn" onclick="toggleFindReplacePanel()">🔎 Find / Replace</button>
+        <button class="btn btn-secondary" onclick="loadSampleDocuments()">
+          <span>📝 Load Samples</span>
+        </button>
+      </div>
+
+      <div id="findReplacePanel" class="editor-panel">
+        <div class="field-row">
+          <div>
+            <label for="findText">Find</label>
+            <input id="findText" type="text" placeholder="Text to find" oninput="updateSearchHighlights()">
+          </div>
+          <div>
+            <label for="replaceText">Replace with</label>
+            <input id="replaceText" type="text" placeholder="Replacement text">
+          </div>
+          <div>
+            <label for="findScope">Scope</label>
+            <select id="findScope">
+              <option value="both">Both documents</option>
+              <option value="base">Base only</option>
+              <option value="compare">Compare only</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-secondary" onclick="findNextMatch()">Find Next</button>
+          <button class="btn btn-secondary" onclick="replaceCurrentMatch()">Replace</button>
+          <button class="btn btn-secondary" onclick="replaceAllMatches()">Replace All</button>
+          <button class="btn btn-secondary" onclick="clearSearchHighlights()">Clear</button>
+        </div>
+      </div>
+    </div>
+    
+    
+    <!-- Messages -->
+    <div id="messages"></div>
+
+    <!-- Main Comparison View -->
+    <div id="comparisonView" style="display: none;">
+      <!-- Page view (side-by-side) -->
+      <div id="pageView" class="page-view">
+        <div class="page" id="pageLeft"></div>
+        <div class="page" id="pageRight"></div>
+      </div>
+      <div class="navigator-panel" id="navigatorPanel">
+        <div id="lineDiffContainer"></div>
+      </div>
+      <div class="main-content">
+        <!-- Base Document -->
+        <div class="column">
+          <div class="column-header">Base Document</div>
+          <div class="column-body" id="baseContent"></div>
+        </div>
+
+        <!-- Compare Document -->
+        <div class="column">
+          <div class="column-header compare">Compare Document</div>
+          <div class="column-body" id="compareContent"></div>
+        </div>
+
+      </div>
+
+      <!-- Statistics -->
+      <div class="stats-panel">
+        <div class="stat-card">
+          <div class="stat-value" id="baseWordCount">0</div>
+          <div class="stat-label">Base Words</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="compareWordCount">0</div>
+          <div class="stat-label">Compare Words</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="addedCount">0</div>
+          <div class="stat-label">Added Words</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="removedCount">0</div>
+          <div class="stat-label">Removed Words</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="similarity">0%</div>
+          <div class="stat-label">Similarity</div>
+        </div>
+      </div>
+
+      <!-- AI Analysis -->
+      <div class="analysis-section">
+        <div class="analysis-title">
+          <span>🤖 Format Analysis</span>
+          <span id="analysisLoading" style="display: none;" class="loading"></span>
+        </div>
+        <div class="analysis-grid" id="analysisContent">
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <div class="empty-text">Click Compare to get AI analysis</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents List Modal -->
+    <div id="docsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000;">
+      <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%;">
+        <h2 style="margin-bottom: 1.5rem;">Uploaded Documents</h2>
+        <div class="documents-list" id="docsList"></div>
+        <button class="btn btn-primary" onclick="closeDocsList()" style="width: 100%; margin-top: 1rem;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let baseDocId = null;
+    let compareDocId = null;
+    let currentComparison = null;
+    let realtimeEnabled = false;
+
+    function toggleRealtime() {
+      realtimeEnabled = !realtimeEnabled;
+      const btn = document.getElementById('realtimeToggleBtn');
+      if (btn) btn.textContent = realtimeEnabled ? '⏱️ Real-time: On' : '⏱️ Real-time: Off';
+      if (realtimeEnabled && currentComparison) debounceCompare();
+      showMessage(realtimeEnabled ? 'Real-time editing enabled' : 'Real-time editing disabled', 'info');
+    }
+
+    
+
+    // Message display
+    function showMessage(text, type = 'info') {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${type}`;
+      messageDiv.innerHTML = `<span>${text}</span>`;
+      document.getElementById('messages').appendChild(messageDiv);
+      setTimeout(() => messageDiv.remove(), 4000);
+    }
+
+    // File upload
+    async function handleFileUpload(event, type) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('name', file.name);
+
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        
+        if (type === 'base') {
+          baseDocId = data.id;
+          const baseEl = document.getElementById('baseContent');
+          renderWithLineNumbers(baseEl, file.name + ' loaded...', 'base');
+        } else {
+          compareDocId = data.id;
+          const compareEl = document.getElementById('compareContent');
+          renderWithLineNumbers(compareEl, file.name + ' loaded...', 'compare');
+        }
+
+        showMessage(`✅ ${file.name} uploaded successfully`, 'success');
+        updateDocumentSelectors();
+      } catch (error) {
+        showMessage('❌ Upload failed: ' + error.message, 'error');
+      }
+    }
+
+    // Load sample documents
+    async function loadSampleDocuments() {
+      try {
+        // Sample patient records
+        const sampleDocs = [
+          {
+            name: 'Patient_Record_v1.txt',
+            content: `PATIENT MEDICAL RECORD
+Patient Name: John William Smith
+Patient ID: MR-2024-001
+Date of Birth: 01/15/1965
+Age: 59 years old
+
+CHIEF COMPLAINT:
+Persistent cough and mild chest pain
+
+HISTORY OF PRESENT ILLNESS:
+Patient presents with a persistent dry cough lasting 3 weeks. Associated with mild chest discomfort on deep breathing. Denies fever or chills. Sleep quality slightly affected due to cough.
+
+PAST MEDICAL HISTORY:
+Hypertension (controlled with medication)
+Type 2 Diabetes (diagnosed 2019)
+Mild hyperlipidemia
+
+MEDICATIONS:
+Lisinopril 10mg daily
+Metformin 1000mg twice daily
+Atorvastatin 20mg daily
+
+VITAL SIGNS:
+Blood Pressure: 138/85 mmHg
+Heart Rate: 72 bpm
+Respiratory Rate: 18 breaths/min
+Temperature: 98.6°F
+Weight: 185 lbs
+
+PHYSICAL EXAMINATION:
+General: Alert and oriented
+Lungs: Bilateral decreased breath sounds at bases
+Heart: Regular rate and rhythm
+Abdomen: Soft non-tender
+
+ASSESSMENT AND PLAN:
+1. Persistent cough: Likely post-viral. CXR ordered
+2. Hypertension: Continue current medication
+3. Diabetes: HbA1c to be checked at next visit
+4. Follow-up in 2 weeks`
+          },
+          {
+            name: 'Patient_Record_v2.txt',
+            content: `PATIENT MEDICAL RECORD
+Patient Name: John William Smith
+Patient ID: MR-2024-001
+Date of Birth: 01/15/1965
+Age: 59 years old
+
+CHIEF COMPLAINT:
+Persistent cough and mild chest pain with shortness of breath
+
+HISTORY OF PRESENT ILLNESS:
+Patient presents with a persistent dry cough lasting 4 weeks. Associated with mild chest discomfort on deep breathing and recent onset of mild shortness of breath on exertion. Denies fever or chills. Sleep quality significantly affected due to cough and dyspnea. Reports fatigue.
+
+PAST MEDICAL HISTORY:
+Hypertension (controlled with medication)
+Type 2 Diabetes (diagnosed 2019)
+Mild hyperlipidemia
+Mild Sleep Apnea (newly diagnosed)
+
+MEDICATIONS:
+Lisinopril 10mg daily
+Metformin 1000mg twice daily
+Atorvastatin 20mg daily
+Aspirin 81mg daily
+
+VITAL SIGNS:
+Blood Pressure: 142/88 mmHg
+Heart Rate: 78 bpm
+Respiratory Rate: 20 breaths/min
+Temperature: 98.4°F
+Weight: 183 lbs (2 lbs loss)
+
+PHYSICAL EXAMINATION:
+General: Alert and oriented, appears fatigued
+Lungs: Bilateral decreased breath sounds at bases, mild crackles
+Heart: Regular rate and rhythm with soft systolic murmur
+Abdomen: Soft non-tender
+
+ASSESSMENT AND PLAN:
+1. Persistent cough with dyspnea: CXR completed shows mild infiltrates. Pulmonary referral recommended. Consider cardiac etiology.
+2. Hypertension: Increase Lisinopril to 20mg
+3. Diabetes: HbA1c elevated at 7.8%. Increase Metformin
+4. Sleep Apnea: Referred to sleep medicine for evaluation
+5. Add Aspirin for cardiovascular protection
+6. Follow-up in 1 week`
+          }
+        ];
+
+        // Create base and compare documents
+        for (let i = 0; i < sampleDocs.length; i++) {
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(sampleDocs[i])
+          });
+
+          // Note: This requires server support, alternatively we can use a different approach
+        }
+
+        // For now, simulate document loading
+        const baseResponse = await fetch('/api/documents');
+        const docs = await baseResponse.json();
+
+        if (docs.length >= 2) {
+          baseDocId = docs[0].id;
+          compareDocId = docs[1].id;
+        }
+
+        showMessage('📝 Sample documents loaded', 'success');
+        updateDocumentSelectors();
+      } catch (error) {
+        showMessage('Error loading samples: ' + error.message, 'error');
+      }
+    }
+
+    // Update document selectors
+    async function updateDocumentSelectors() {
+      try {
+        const response = await fetch('/api/documents');
+        const docs = await response.json();
+
+        const baseSelect = document.getElementById('baseDocSelect');
+        const compareSelect = document.getElementById('compareDocSelect');
+
+        baseSelect.innerHTML = '<option value="">-- Select Base Document --</option>';
+        compareSelect.innerHTML = '<option value="">-- Select Document to Compare --</option>';
+
+        docs.forEach(doc => {
+          const option1 = document.createElement('option');
+          option1.value = doc.id;
+          option1.textContent = doc.name;
+          baseSelect.appendChild(option1);
+
+          const option2 = document.createElement('option');
+          option2.value = doc.id;
+          option2.textContent = doc.name;
+          compareSelect.appendChild(option2);
+        });
+
+        document.getElementById('docSelector').style.display = docs.length > 0 ? 'grid' : 'none';
+        updateCompareButton();
+      } catch (error) {
+        console.error('Error fetching documents:', error);
+      }
+    }
+
+    // Select base document
+    async function selectBaseDocument() {
+      const select = document.getElementById('baseDocSelect');
+      baseDocId = select.value;
+      if (baseDocId) {
+        const response = await fetch(`/api/documents/${baseDocId}`);
+        const doc = await response.json();
+        const baseEl = document.getElementById('baseContent');
+        const pageLeft = document.getElementById('pageLeft');
+        if (doc.html) {
+          // For richer rendering keep the HTML in the page view, but create a text fallback with line numbers
+          try {
+            const text = htmlToPlainText(doc.html || doc.content || '');
+            renderWithLineNumbers(baseEl, text, 'base');
+            pageLeft.innerHTML = `<div class="doc-title">File: ${escapeHtml(doc.name)}</div>` + doc.html;
+            window.lastBaseHtml = doc.html;
+          } catch (e) {
+            renderWithLineNumbers(baseEl, doc.content || '', 'base');
+            pageLeft.innerHTML = `<div class="doc-title">File: ${escapeHtml(doc.name)}</div><pre style="white-space:pre-wrap; font-family:inherit">${escapeHtml(doc.content)}</pre>`;
+            window.lastBaseHtml = null;
+          }
+        } else {
+          renderWithLineNumbers(baseEl, doc.content || '', 'base');
+          pageLeft.innerHTML = `<div class="doc-title">File: ${escapeHtml(doc.name)}</div><pre style="white-space:pre-wrap; font-family:inherit">${escapeHtml(doc.content)}</pre>`;
+          window.lastBaseHtml = null;
+        }
+      }
+      updateCompareButton();
+    }
+
+    // Select compare document
+    async function selectCompareDocument() {
+      const select = document.getElementById('compareDocSelect');
+      compareDocId = select.value;
+      if (compareDocId) {
+        const response = await fetch(`/api/documents/${compareDocId}`);
+        const doc = await response.json();
+        const compareEl = document.getElementById('compareContent');
+        const pageRight = document.getElementById('pageRight');
+        if (doc.html) {
+          try {
+            const text = htmlToPlainText(doc.html || doc.content || '');
+            renderWithLineNumbers(compareEl, text, 'compare');
+            pageRight.innerHTML = `<div class="doc-title">File: ${escapeHtml(doc.name)}</div>` + doc.html;
+            window.lastCompareHtml = doc.html;
+          } catch (e) {
+            renderWithLineNumbers(compareEl, doc.content || '', 'compare');
+            pageRight.innerHTML = `<div class="doc-title">File: ${escapeHtml(doc.name)}</div><pre style="white-space:pre-wrap; font-family:inherit">${escapeHtml(doc.content)}</pre>`;
+            window.lastCompareHtml = null;
+          }
+        } else {
+          renderWithLineNumbers(compareEl, doc.content || '', 'compare');
+          pageRight.innerHTML = `<div class="doc-title">File: ${escapeHtml(doc.name)}</div><pre style="white-space:pre-wrap; font-family:inherit">${escapeHtml(doc.content)}</pre>`;
+          window.lastCompareHtml = null;
+        }
+      }
+      updateCompareButton();
+    }
+
+    // Update compare button state
+    function updateCompareButton() {
+      const btn = document.getElementById('compareBtn');
+      btn.disabled = !baseDocId || !compareDocId;
+    }
+
+    // Compare documents
+    async function compareDocuments() {
+      if (!baseDocId || !compareDocId) {
+        showMessage('⚠️ Please select both documents', 'info');
+        return;
+      }
+
+      document.getElementById('compareBtn').innerHTML = '<span class="loading"></span> Comparing...';
+
+      try {
+        // Update content in case of edits
+        const baseContent = getEditableContent('base');
+        const compareContent = getEditableContent('compare');
+
+        const response = await fetch('/api/compare', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            baseId: baseDocId,
+            compareId: compareDocId,
+            baseContent: baseContent,
+            compareContent: compareContent
+          })
+        });
+
+        currentComparison = await response.json();
+        displayComparison();
+        await analyzeDocuments(baseContent, compareContent);
+        await analyzeFormattingChanges();
+        showMessage('✅ Comparison complete', 'success');
+      } catch (error) {
+        showMessage('❌ Comparison failed: ' + error.message, 'error');
+      } finally {
+        document.getElementById('compareBtn').innerHTML = '🔍 Compare';
+      }
+    }
+
+    // Display comparison results
+    function displayComparison() {
+      document.getElementById('comparisonView').style.display = 'block';
+      const pageView = document.getElementById('pageView');
+      const mainContent = document.querySelector('.main-content');
+      const navigatorPanel = document.getElementById('navigatorPanel');
+      if (pageView) pageView.style.display = 'none';
+      if (mainContent) mainContent.style.display = '';
+      if (navigatorPanel) navigatorPanel.style.display = 'block';
+
+      // Update stats
+      document.getElementById('baseWordCount').textContent = currentComparison.stats.baseWords;
+      document.getElementById('compareWordCount').textContent = currentComparison.stats.compareWords;
+      document.getElementById('addedCount').textContent = currentComparison.stats.addedWords;
+      document.getElementById('removedCount').textContent = currentComparison.stats.removedWords;
+      document.getElementById('similarity').textContent = currentComparison.stats.similarity + '%';
+
+      // Display combined view (word-level)
+      const combinedHtml = currentComparison.combined
+        .map(item => {
+          const className = item.type === 'added' ? 'added' : item.type === 'removed' ? 'removed' : 'same';
+          return `<span class="word ${className}">${escapeHtml(item.word)}</span>`;
+        })
+        .join(' ');
+
+      // Build grouped Combined View columns: Replaced only
+      const combinedContainer = document.getElementById('combinedContent');
+      const changeGroups = (currentComparison.lineDiffs && currentComparison.lineDiffs.changeGroups) || [];
+      // include all change groups (added/removed/replaced) and flatten per-item labels client-side
+      const changes = changeGroups || [];
+
+      // store groups for click handlers under a neutral key
+      window._combinedGroups = { changes };
+
+      // compute flattened item count for display (sum of per-group change counts)
+      const flattenedCount = changes.reduce((sum, g) => sum + ((g.changes && g.changes.length) ? g.changes.length : 1), 0);
+
+      function renderGroupList(type) {
+        const list = window._combinedGroups[type] || [];
+        if (!list.length) return '<div style="color:var(--text-secondary); padding:8px;">No items</div>';
+
+        // Flatten each group's word-level changes into its own entry so each replacement is listed separately
+        const items = [];
+        list.forEach((g, gIdx) => {
+          const changes = (g.changes && g.changes.length) ? g.changes : [{ base: g.baseSnippet.join(' '), compare: g.compareSnippet.join(' ') }];
+          changes.forEach((c, ci) => {
+            items.push({ groupIdx: gIdx, changeIdx: ci, base: c.base || '', compare: c.compare || '', meta: g });
+          });
+        });
+
+        if (!items.length) return '<div style="color:var(--text-secondary); padding:8px;">No items</div>';
+
+        return items.map((it, idx) => {
+          const baseHtml = it.base
+            ? `<div style="padding:6px; border-radius:4px; margin-bottom:6px; color:var(--danger-remove); background:rgba(239,68,68,0.04)">${escapeHtml(it.base)}</div>`
+            : '<div style="color:#9ca3af"><em>—</em></div>';
+
+          const compareHtml = it.compare
+            ? `<div style="padding:6px; border-radius:4px; margin-bottom:6px; color:var(--success-add); background:rgba(16,185,129,0.04)">${escapeHtml(it.compare)}</div>`
+            : '<div style="color:#9ca3af"><em>—</em></div>';
+
+          // decide label based on presence of base/compare
+          const baseEmpty = !it.base || !it.base.trim();
+          const compareEmpty = !it.compare || !it.compare.trim();
+          const itemLabel = baseEmpty && !compareEmpty ? 'INSERTED' : (!baseEmpty && compareEmpty ? 'DELETED' : 'REPLACED');
+
+          return `
+            <div data-type="${type}" data-idx="${it.groupIdx}" style="padding:10px; border-radius:6px; background:rgba(255,255,255,0.9); margin-bottom:10px; box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+              <div style="display:flex; justify-content:space-between; align-items:center; font-weight:700; margin-bottom:6px;">${idx+1}. ${itemLabel}</div>
+              <div style="font-size:0.9rem; color:var(--text-secondary);">
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <div style="flex:1">${baseHtml}</div>
+                  <div style="width:28px; text-align:center; color:#6b7280; font-weight:700;">→</div>
+                  <div style="flex:1">${compareHtml}</div>
+                </div>
+              </div>
+            </div>`;
+        }).join('');
+      }
+
+      function renderCol(title, type, items) {
+        const count = Array.isArray(items) ? items.length : (Number(items) || 0);
+        return `
+          <div class="combined-col">
+            <div class="col-header"><div>${title} (${count})</div><div id="toggle-${type}" style="cursor:pointer; opacity:0.8;">▾</div></div>
+            <div class="col-list" id="col-${type}">${renderGroupList(type)}</div>
+          </div>`;
+      }
+
+      if (combinedContainer) {
+        // Show only the Replaced column in the Combined View (no inline diff)
+        combinedContainer.innerHTML = `
+          <div style="display:flex; flex:1; min-height:0; height:100%;">
+            ${renderCol('Changes', 'changes', flattenedCount)}
+          </div>`;
+
+        // attach toggles (changes)
+        ['changes'].forEach(type => {
+          const t = document.getElementById(`toggle-${type}`);
+          if (!t) return;
+          t.onclick = () => {
+            const listEl = document.getElementById(`col-${type}`);
+            if (!listEl) return;
+            if (listEl.style.display === 'none') { listEl.style.display = ''; t.textContent = '▾'; }
+            else { listEl.style.display = 'none'; t.textContent = '▸'; }
+          };
+        });
+      }
+
+      // sub-change click handler
+      window.onCombinedSubChangeClick = (type, groupIdx, changeIdx) => {
+        const g = window._combinedGroups[type][groupIdx];
+        const ch = g && g.changes && g.changes[changeIdx];
+        if (!g || !ch) return;
+        // create a synthetic group for highlighting
+        const synth = { startLine: g.startLine, baseSnippet: [ch.base||''], compareSnippet: [ch.compare||''] };
+        onCombinedGroupClick(type, groupIdx); // scroll to group
+        highlightGroup(synth);
+      };
+
+      // Render aligned side-by-side lines and changes panel (LCS-based)
+      const lineContainer = document.getElementById('lineDiffContainer');
+      const ld = currentComparison.lineDiffs || { lines: [], changeGroups: [] };
+      const lines = ld.lines || [];
+      const groups = ld.changeGroups || [];
+
+      if (lines.length === 0) {
+        lineContainer.innerHTML = '';
+      } else {
+        // build rows for left (base) and right (compare)
+        const rowsHtml = lines.map(row => {
+          const baseHtml = renderLineWords(row.baseWordDiff, row.base) ;
+          const compareHtml = renderLineWords(row.compareWordDiff, row.compare) ;
+          const rowBgLeft = row.status === 'removed' ? 'rgba(239,68,68,0.03)' : 'transparent';
+          const rowBgRight = row.status === 'added' ? 'rgba(16,185,129,0.03)' : 'transparent';
+          const lineNumHtml = `<div style="width:56px; color:#6b7280; font-weight:700;">${row.baseLineNumber? 'B:'+row.baseLineNumber : ''}<br>${row.compareLineNumber? 'C:'+row.compareLineNumber : ''}</div>`;
+          return `
+            <div id="line-row-${row.line}" style="display:flex; gap:12px; align-items:flex-start; padding:8px 12px; border-bottom:1px solid #f1f5f9;">
+              ${lineNumHtml}
+              <div style="flex:1; padding:6px; background:${rowBgLeft};">${baseHtml || '&nbsp;'}</div>
+              <div style="flex:1; padding:6px; background:${rowBgRight};">${compareHtml || '&nbsp;'}</div>
+            </div>`;
+        }).join('');
+
+        // build changes sidebar
+        const groupsHtml = groups.map((g, idx) => {
+          const title = g.type === 'replaced' ? 'REPLACED' : g.type === 'added' ? 'ADDED' : 'DELETED';
+          const plus = g.added ? `+${g.added}` : '';
+          const minus = g.removed ? `-${g.removed}` : '';
+          const baseSnippet = g.baseSnippet.slice(0,3).map(s => escapeHtml(s)).join('<br>');
+          const compareSnippet = g.compareSnippet.slice(0,3).map(s => escapeHtml(s)).join('<br>');
+          return `
+            <div onclick="scrollToLine(${g.startLine})" style="cursor:pointer; padding:12px; border-radius:8px; background:white; box-shadow:0 1px 6px rgba(0,0,0,0.04); margin-bottom:10px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-weight:700;">
+                <div>${idx+1}. ${title}</div>
+                <div style="color:#6b7280; font-weight:700;">${minus} ${plus}</div>
+              </div>
+              <div style="font-size:0.9rem; color:var(--text-secondary);">
+                <div style="margin-bottom:6px;"><strong>Base:</strong><br>${baseSnippet || '<em>—</em>'}</div>
+                <hr style="margin:6px 0; border:none; border-top:1px solid #eef2f7;" />
+                <div><strong>Compare:</strong><br>${compareSnippet || '<em>—</em>'}</div>
+              </div>
+            </div>`;
+        }).join('');
+
+        lineContainer.innerHTML = `
+          <div id="lineDiffGrid" style="display:grid; grid-template-columns: minmax(0, 2.2fr) minmax(320px, 0.8fr); gap:16px; align-items:start;">
+            <div id="lineDiffLeftCard" style="background:white; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.04); overflow:hidden;">
+              <div style="display:flex; gap:12px; padding:10px 12px; background:var(--neutral-light); font-weight:700; color:var(--text-primary);">
+                <div style="width:56px">B# / C#</div>
+                <div style="flex:1">Base</div>
+                <div style="flex:1">Compare</div>
+              </div>
+              <div>${rowsHtml}</div>
+            </div>
+            <div id="changesPanel" style="display:flex; flex-direction:column; min-height:0;">
+              <div style="font-weight:700; margin-bottom:8px; flex:0 0 auto;">Changes (${groups.length})</div>
+              <div id="changesList" style="background:white; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.04); padding:8px; overflow:auto; min-height:0; flex:1;">
+                ${groupsHtml || '<div style="color:#6b7280; background:white; padding:12px; border-radius:8px;">No changes detected</div>'}
+              </div>
+            </div>
+          </div>`;
+
+        requestAnimationFrame(() => {
+          const leftCard = document.getElementById('lineDiffLeftCard');
+          const changesPanel = document.getElementById('changesPanel');
+          const changesListEl = document.getElementById('changesList');
+          if (leftCard && changesPanel) {
+            // prefer clientHeight (content + padding) for a stable inner size
+            const leftHeight = leftCard.clientHeight || Math.round(leftCard.getBoundingClientRect().height);
+            if (leftHeight > 0) {
+              // ensure the changes panel matches the left card height and the inner list
+              changesPanel.style.height = `${leftHeight}px`;
+              // add a small bottom padding so the last card's button is not flush against the edge
+              if (changesListEl) {
+                changesListEl.style.boxSizing = 'border-box';
+                changesListEl.style.paddingBottom = '18px';
+              }
+            }
+          }
+        });
+      }
+
+      // Scroll to results
+      document.getElementById('comparisonView').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Analyze with AI
+    // Formatting comparison: detect bold/italic/color/font changes between loaded HTML documents
+    async function analyzeFormattingChanges() {
+      if (!window.lastBaseHtml || !window.lastCompareHtml) return;
+      // Try server-side OpenAI analysis first
+      try {
+        const resp = await fetch('/api/format-analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ baseHtml: window.lastBaseHtml, compareHtml: window.lastCompareHtml })
+        });
+        const data = await resp.json();
+        if (!data || !Array.isArray(data.changes)) throw new Error('Invalid response');
+
+        const pageLeft = document.getElementById('pageLeft');
+        const pageRight = document.getElementById('pageRight');
+        let leftHtml = window.lastBaseHtml;
+        let rightHtml = window.lastCompareHtml;
+        const baseText = htmlToPlainText(window.lastBaseHtml || '');
+        const compareText = htmlToPlainText(window.lastCompareHtml || '');
+        const detailedChanges = [];
+
+        function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&'); }
+
+        data.changes.forEach(c => {
+          const text = c.text || '';
+          if (!text) return;
+          const changes = Array.isArray(c.changes) ? c.changes : [];
+          const cls = [];
+          if (changes.includes('bold')) cls.push('format-bold');
+          if (changes.includes('italic')) cls.push('format-italic');
+          if (changes.includes('color')) cls.push('format-color');
+          const span = `<span class="${cls.join(' ')}" title='${escapeHtml(JSON.stringify({ base: c.base, compare: c.compare }))}'>${escapeHtml(text)}</span>`;
+          const re = new RegExp(escapeRegExp(text), 'i');
+          leftHtml = leftHtml.replace(re, span);
+          rightHtml = rightHtml.replace(re, span);
+
+          const baseHit = findTextLocation(baseText, text);
+          const compareHit = findTextLocation(compareText, text);
+          detailedChanges.push({
+            label: `${changes.join(', ') || 'Formatting change'}: ${text}`,
+            where: [baseHit ? `Base L${baseHit.lineNumber}` : null, compareHit ? `Compare L${compareHit.lineNumber}` : null].filter(Boolean).join(' · '),
+            snippet: baseHit?.lineText || compareHit?.lineText || '',
+            baseLineNumber: baseHit?.lineNumber || null,
+            compareLineNumber: compareHit?.lineNumber || null,
+            text,
+            base: c.base,
+            compare: c.compare,
+            changes
+          });
+        });
+
+        window.lastFormattingChanges = detailedChanges;
+        updateFormattingChangesList(detailedChanges);
+
+        if (pageLeft) pageLeft.innerHTML = leftHtml;
+        if (pageRight) pageRight.innerHTML = rightHtml;
+        return;
+      } catch (err) {
+        console.warn('AI format analysis failed, falling back to local analysis', err);
+      }
+
+      // Fallback: local client-side detection (existing implementation)
+      // Build tokenized word lists with formatting metadata
+      function buildWordSpans(html) {
+        const container = document.createElement('div');
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.top = '-9999px';
+        container.style.width = '800px';
+        container.innerHTML = html || '';
+        document.body.appendChild(container);
+
+        const words = [];
+        let idx = 0;
+
+        function getFormats(el) {
+          const formats = { bold: false, italic: false, color: null, font: null };
+          let cur = el;
+          while (cur && cur !== container) {
+            const tag = cur.tagName && cur.tagName.toUpperCase();
+            if (tag === 'B' || tag === 'STRONG') formats.bold = true;
+            if (tag === 'I' || tag === 'EM') formats.italic = true;
+            if (cur.style && cur.style.color) formats.color = cur.style.color;
+            if (cur.style && cur.style.fontFamily) formats.font = cur.style.fontFamily;
+            try {
+              const cs = window.getComputedStyle(cur);
+              if (!formats.bold && (cs.fontWeight === 'bold' || parseInt(cs.fontWeight || '400') >= 600)) formats.bold = true;
+              if (!formats.italic && cs.fontStyle === 'italic') formats.italic = true;
+              if (!formats.color && cs.color) formats.color = cs.color;
+            } catch (e) {}
+            cur = cur.parentElement;
+          }
+          return formats;
+        }
+
+        const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
+        const toReplace = [];
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          if (!node.nodeValue || !node.nodeValue.trim()) continue;
+          toReplace.push(node);
+        }
+
+        toReplace.forEach(node => {
+          const parent = node.parentElement || container;
+          const formats = getFormats(parent);
+          const frag = document.createDocumentFragment();
+          const parts = node.nodeValue.split(/(\s+)/);
+          parts.forEach(p => {
+            if (p.match(/\s+/)) {
+              frag.appendChild(document.createTextNode(p));
+            } else {
+              const span = document.createElement('span');
+              span.textContent = p;
+              span.dataset.widx = idx;
+              if (formats.bold) span.dataset.bold = '1';
+              if (formats.italic) span.dataset.italic = '1';
+              if (formats.color) span.dataset.color = formats.color;
+              frag.appendChild(span);
+              words.push({ text: p, norm: normalizeWord(p), bold: !!formats.bold, italic: !!formats.italic, color: formats.color, span });
+              idx++;
+            }
+          });
+          parent.replaceChild(frag, node);
+        });
+
+        return { container, words };
+      }
+
+      function computeLCS(a, b) {
+        const n = a.length, m = b.length;
+        const dp = Array.from({length: n+1}, () => Array(m+1).fill(0));
+        for (let i = n-1; i >= 0; --i) {
+          for (let j = m-1; j >= 0; --j) {
+            if (a[i].norm === b[j].norm) dp[i][j] = 1 + dp[i+1][j+1];
+            else dp[i][j] = Math.max(dp[i+1][j], dp[i][j+1]);
+          }
+        }
+        const matches = [];
+        let i=0,j=0;
+        while (i<n && j<m) {
+          if (a[i].norm === b[j].norm) { matches.push([i,j]); i++; j++; }
+          else if (dp[i+1][j] >= dp[i][j+1]) i++; else j++;
+        }
+        return matches;
+      }
+
+      const base = buildWordSpans(window.lastBaseHtml);
+      const comp = buildWordSpans(window.lastCompareHtml);
+      const matches = computeLCS(base.words, comp.words);
+      const detailedChanges = [];
+      matches.forEach(([bi, ci]) => {
+        const bw = base.words[bi];
+        const cw = comp.words[ci];
+        if (!bw || !cw) return;
+        const bEl = bw.span;
+        const cEl = cw.span;
+        const diffClasses = [];
+        if (bw.bold !== cw.bold) diffClasses.push('format-bold');
+        if (bw.italic !== cw.italic) diffClasses.push('format-italic');
+        if ((bw.color||'') !== (cw.color||'')) diffClasses.push('format-color');
+        if (diffClasses.length) {
+          diffClasses.forEach(cl => { bEl.classList.add(cl); cEl.classList.add(cl); bEl.classList.add('format-change'); cEl.classList.add('format-change'); });
+          const baseHit = findTextLocation(htmlToPlainText(window.lastBaseHtml || ''), bw.text);
+          const compareHit = findTextLocation(htmlToPlainText(window.lastCompareHtml || ''), cw.text);
+          detailedChanges.push({
+            label: `${diffClasses.join(', ')}: ${bw.text}`,
+            where: [baseHit ? `Base L${baseHit.lineNumber}` : null, compareHit ? `Compare L${compareHit.lineNumber}` : null].filter(Boolean).join(' · '),
+            snippet: baseHit?.lineText || compareHit?.lineText || '',
+            baseLineNumber: baseHit?.lineNumber || null,
+            compareLineNumber: compareHit?.lineNumber || null,
+            text: bw.text,
+            changes: diffClasses
+          });
+        }
+      });
+      window.lastFormattingChanges = detailedChanges;
+      updateFormattingChangesList(detailedChanges);
+      const pageLeft = document.getElementById('pageLeft');
+      const pageRight = document.getElementById('pageRight');
+      if (pageLeft) pageLeft.innerHTML = base.container.innerHTML;
+      if (pageRight) pageRight.innerHTML = comp.container.innerHTML;
+      try { document.body.removeChild(base.container); } catch(e){}
+      try { document.body.removeChild(comp.container); } catch(e){}
+    }
+    async function analyzeDocuments(baseContent, compareContent) {
+      document.getElementById('analysisLoading').style.display = 'inline-block';
+
+      try {
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            baseContent,
+            compareContent,
+            baseHtml: window.lastBaseHtml || null,
+            compareHtml: window.lastCompareHtml || null,
+            baseId: baseDocId,
+            compareId: compareDocId
+          })
+        });
+
+        const analysis = await response.json();
+
+        const html = `
+          
+          <div class="analysis-card">
+            <h4>Formatting Changes</h4>
+            <div id="formattingChangesList">${renderFormattingChangeList(analysis.formattingChanges || [])}</div>
+          </div>
+         
+        `;
+
+        document.getElementById('analysisContent').innerHTML = html;
+      } catch (error) {
+        console.error('Analysis error:', error);
+        document.getElementById('analysisContent').innerHTML = `
+          <div class="analysis-card">
+            <h4>Analysis Unavailable</h4>
+            <p>Please configure OpenRouter API key for advanced analysis</p>
+          </div>
+        `;
+      } finally {
+        document.getElementById('analysisLoading').style.display = 'none';
+      }
+    }
+
+    function findTextLocation(text, needle) {
+      const haystack = String(text || '');
+      const target = String(needle || '').trim();
+      if (!haystack || !target) return null;
+
+      const lines = haystack.split(/\r?\n/);
+      // Normalise the target: collapse spaces, also try removing all spaces
+      const targetNorm = target.replace(/\s+/g, ' ').trim();
+      const targetNoSpace = targetNorm.replace(/\s/g, '');
+
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        // Normalise line: collapse multiple spaces
+        let lineNorm = line.replace(/\s+/g, ' ').trim();
+        if (lineNorm.toLowerCase().includes(targetNorm.toLowerCase())) {
+          return { lineNumber: i + 1, lineText: lineNorm };
+        }
+        // Also try matching without any spaces (e.g., "mmHg" vs "mm Hg")
+        if (lineNorm.replace(/\s/g, '').toLowerCase().includes(targetNoSpace.toLowerCase())) {
+          return { lineNumber: i + 1, lineText: lineNorm };
+        }
+      }
+      return null;
+    }
+
+    function renderFormattingChangeList(changes) {
+      const list = Array.isArray(changes) ? changes : [];
+      if (!list.length) return '<p>No formatting changes detected</p>';
+
+      return list.map(change => {
+        if (typeof change === 'string') {
+          return `<div class="analysis-card" style="margin-top:10px; padding:12px 14px;"><strong>${escapeHtml(change)}</strong></div>`;
+        }
+
+        const label = change.label || change.text || 'Formatting change';
+        const where = change.where || '';
+        const snippet = change.snippet || '';
+        const baseLineNumber = Number(change.baseLineNumber || 0);
+        const compareLineNumber = Number(change.compareLineNumber || 0);
+        const details = [];
+        if (where) details.push(escapeHtml(where));
+        if (snippet) details.push(escapeHtml(snippet));
+
+        const jumpButtons = [];
+        const safeText = JSON.stringify(String(change.text || '')).replace(/</g, '\\u003c');
+        if (baseLineNumber && compareLineNumber && baseLineNumber === compareLineNumber) {
+          jumpButtons.push(`<button type="button" class="mini-btn" onclick='jumpToFormattingLine(${baseLineNumber}, ${safeText})'>Line ${baseLineNumber}</button>`);
+        } else {
+          if (baseLineNumber) jumpButtons.push(`<button type="button" class="mini-btn" onclick='jumpToFormattingLine(${baseLineNumber}, ${safeText})'>Base L${baseLineNumber}</button>`);
+          if (compareLineNumber) jumpButtons.push(`<button type="button" class="mini-btn" onclick='jumpToFormattingLine(${compareLineNumber}, ${safeText})'>Compare L${compareLineNumber}</button>`);
+        }
+
+        return `
+          <div class="analysis-card" style="margin-top:10px; padding:12px 14px; border-left:4px solid var(--accent-teal);">
+            <strong>${escapeHtml(label)}</strong>
+            ${details.length ? `<div style="margin-top:6px; color:var(--text-secondary); font-size:0.92rem;">${details.join(' · ')}</div>` : ''}
+            ${jumpButtons.length ? `<div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;">${jumpButtons.join('')}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateFormattingChangesList(changes) {
+      const el = document.getElementById('formattingChangesList');
+      if (el) el.innerHTML = renderFormattingChangeList(changes);
+    }
+
+    function jumpToFormattingLine(lineNumber, wordText) {
+      if (!lineNumber) return;
+      const row = document.getElementById(`line-row-${lineNumber}`);
+      if (row) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        row.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.15)';
+        highlightFormattingWordInRow(row, wordText);
+        setTimeout(() => { row.style.boxShadow = ''; }, 1600);
+        return;
+      }
+
+      const editable = document.getElementById('baseEditable') || document.getElementById('compareEditable');
+      if (editable) editable.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function highlightFormattingWordInRow(rowEl, wordText) {
+      if (!rowEl) return;
+      document.querySelectorAll('.format-target').forEach(el => el.classList.remove('format-target'));
+      const normalizeComparable = (value) => String(value || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '');
+
+      const target = normalizeComparable(wordText);
+      if (!target) return;
+
+      const words = Array.from(rowEl.querySelectorAll('.word'));
+      const normalizedWords = words.map(wordEl => normalizeComparable(wordEl.textContent));
+      let found = false;
+
+      // Try to match the target against contiguous token sequences.
+      // This handles cases like "mmHg" vs rendered tokens "mm" + "Hg".
+      for (let start = 0; start < normalizedWords.length && !found; start++) {
+        let joined = '';
+        for (let end = start; end < normalizedWords.length; end++) {
+          const token = normalizedWords[end];
+          if (!token) continue;
+          joined += token;
+          if (joined === target) {
+            for (let k = start; k <= end; k++) {
+              words[k].classList.add('format-target');
+            }
+            found = true;
+            break;
+          }
+          if (joined.length > target.length) break;
+        }
+      }
+
+      // Fallback: highlight exact normalized token matches.
+      if (!found) {
+        words.forEach((wordEl, idx) => {
+          if (normalizedWords[idx] === target) {
+            wordEl.classList.add('format-target');
+            found = true;
+          }
+        });
+      }
+
+      if (found) {
+        setTimeout(() => document.querySelectorAll('.format-target').forEach(el => el.classList.remove('format-target')), 1600);
+      }
+    }
+
+    let editingEnabled = true;
+    let compareTimeout;
+    const saveTimeouts = { base: null, compare: null };
+    const searchState = { query: '', scope: 'both', index: -1, matches: [] };
+
+    function getDocumentIds(which) {
+      return which === 'base' ? baseDocId : compareDocId;
+    }
+
+    function setEditorState(which, enabled) {
+      const editor = document.getElementById(which + 'Editable');
+      if (!editor) return;
+      editor.contentEditable = enabled ? 'true' : 'false';
+      editor.setAttribute('aria-readonly', enabled ? 'false' : 'true');
+    }
+
+    function syncEditorState() {
+      ['base', 'compare'].forEach(which => setEditorState(which, editingEnabled));
+      const btn = document.getElementById('toggleEditBtn');
+      if (btn) btn.textContent = editingEnabled ? '✏️ Edit Mode: On' : '✏️ Edit Mode: Off';
+    }
+
+    function toggleEditMode() {
+      editingEnabled = !editingEnabled;
+      syncEditorState();
+      showMessage(editingEnabled ? '✏️ Editing enabled' : '✋ Editing paused', 'info');
+    }
+
+    function toggleFindReplacePanel() {
+      const panel = document.getElementById('findReplacePanel');
+      if (!panel) return;
+      const open = panel.classList.toggle('active');
+      document.getElementById('toggleFindReplaceBtn').textContent = open ? '🔎 Hide Find / Replace' : '🔎 Find / Replace';
+      if (open) {
+        const input = document.getElementById('findText');
+        if (input) input.focus();
+      } else {
+        clearSearchHighlights();
+      }
+    }
+
+    async function persistDocument(which) {
+      const docId = getDocumentIds(which);
+      if (!docId) return;
+      const editor = document.getElementById(which + 'Editable');
+      if (!editor) return;
+      const content = editor.textContent || '';
+      await fetch(`/api/documents/${docId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      });
+    }
+
+    function queuePersist(which) {
+      clearTimeout(saveTimeouts[which]);
+      saveTimeouts[which] = setTimeout(() => persistDocument(which).catch(console.error), 350);
+    }
+
+    function refreshSearchState() {
+      // Delegate to updateSearchHighlights which performs non-intrusive highlighting
+      updateSearchHighlights();
+    }
+
+    function updateSearchHighlights() {
+      clearSearchHighlights();
+      const query = (document.getElementById('findText')?.value || '').trim();
+      if (!query) return;
+      searchState.query = query;
+      searchState.scope = document.getElementById('findScope')?.value || 'both';
+      searchState.matches = [];
+
+      // Create a regexp for global, case-insensitive matching and escape special chars
+      function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+      const re = new RegExp(escapeRegExp(query), 'gi');
+
+      const scopes = searchState.scope === 'both' ? ['base', 'compare'] : [searchState.scope];
+      scopes.forEach(which => {
+        const editor = document.getElementById(which + 'Editable');
+        if (!editor) return;
+        const text = editor.textContent || '';
+        const escaped = escapeHtml(text);
+        // build highlighted html wrapped in <pre> to preserve line breaks
+        const highlighted = escaped.replace(re, match => `<span class="search-highlight">${match}</span>`);
+        editor.innerHTML = `<pre>${highlighted}</pre>`;
+        // collect element refs for navigation
+        const hits = Array.from(editor.querySelectorAll('.search-highlight'));
+        hits.forEach(el => searchState.matches.push({ which, el }));
+      });
+
+      if (searchState.matches.length) {
+        searchState.index = 0;
+        highlightMatch(searchState.matches[0]);
+      }
+    }
+
+    function clearSearchHighlights() {
+      ['baseEditable', 'compareEditable'].forEach(id => {
+        const editor = document.getElementById(id);
+        if (!editor) return;
+        const text = editor.textContent || '';
+        editor.innerHTML = `<pre>${escapeHtml(text)}</pre>`;
+      });
+      searchState.matches = [];
+      searchState.index = -1;
+    }
+
+    function buildRangeForTextNode(root, start, end) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      let current = 0;
+      let startNode = null;
+      let endNode = null;
+      let startOffset = 0;
+      let endOffset = 0;
+      while (walker.nextNode()) {
+        const node = walker.currentNode;
+        const next = current + node.nodeValue.length;
+        if (!startNode && start >= current && start <= next) {
+          startNode = node;
+          startOffset = start - current;
+        }
+        if (end >= current && end <= next) {
+          endNode = node;
+          endOffset = end - current;
+          break;
+        }
+        current = next;
+      }
+      if (!startNode || !endNode) return null;
+      const range = document.createRange();
+      range.setStart(startNode, startOffset);
+      range.setEnd(endNode, endOffset);
+      return range;
+    }
+
+    function highlightMatch(match) {
+      if (!match) return;
+      const editor = document.getElementById(match.which + 'Editable');
+      if (!editor) return;
+      // if we have an element reference, scroll to it and briefly highlight
+      if (match.el && match.el instanceof Element) {
+        match.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        match.el.classList.add('word-highlight');
+        setTimeout(() => match.el.classList.remove('word-highlight'), 1600);
+        return;
+      }
+      // fallback: do nothing intrusive
+    }
+
+    function findNextMatch() {
+      const query = (document.getElementById('findText')?.value || '').trim();
+      if (!query) return showMessage('Enter text to find', 'info');
+      if (!searchState.matches.length || searchState.query !== query) {
+        updateSearchHighlights();
+      }
+      if (!searchState.matches.length) return showMessage('No matches found', 'info');
+      searchState.index = (searchState.index + 1) % searchState.matches.length;
+      highlightMatch(searchState.matches[searchState.index]);
+    }
+
+    function replaceCurrentMatch() {
+      if (!searchState.matches.length) updateSearchHighlights();
+      if (!searchState.matches.length) return showMessage('No matches to replace', 'info');
+      const idx = searchState.index >= 0 ? searchState.index : 0;
+      const match = searchState.matches[idx];
+      const replacement = document.getElementById('replaceText')?.value || '';
+      if (match && match.el && match.el instanceof Element) {
+        match.el.textContent = replacement;
+        queuePersist(match.which);
+      } else if (match && typeof match.start === 'number') {
+        replaceInEditor(match.which, match.start, match.end);
+      }
+      updateSearchHighlights();
+      debounceCompare();
+    }
+
+    function replaceAllMatches() {
+      const query = (document.getElementById('findText')?.value || '').trim();
+      const replacement = document.getElementById('replaceText')?.value || '';
+      if (!query) return showMessage('Enter text to find', 'info');
+      const scopes = (document.getElementById('findScope')?.value || 'both') === 'both' ? ['base', 'compare'] : [document.getElementById('findScope').value];
+      scopes.forEach(which => {
+        const editor = document.getElementById(which + 'Editable');
+        if (!editor) return;
+        const current = editor.textContent || '';
+        const next = current.split(query).join(replacement);
+        if (next !== current) {
+          editor.textContent = next;
+          queuePersist(which);
+        }
+      });
+      refreshSearchState();
+      debounceCompare();
+    }
+
+    function replaceInEditor(which, start, end) {
+      const editor = document.getElementById(which + 'Editable');
+      if (!editor) return;
+      const replacement = document.getElementById('replaceText')?.value || '';
+      const text = editor.textContent || '';
+      editor.textContent = text.slice(0, start) + replacement + text.slice(end);
+      queuePersist(which);
+    }
+
+    // Real-time editing
+    function onBaseEdit() {
+      if (!currentComparison) return;
+      queuePersist('base');
+      if (realtimeEnabled) debounceCompare();
+    }
+
+    function onCompareEdit() {
+      if (!currentComparison) return;
+      queuePersist('compare');
+      if (realtimeEnabled) debounceCompare();
+    }
+
+    function debounceCompare() {
+      clearTimeout(compareTimeout);
+      compareTimeout = setTimeout(() => compareDocuments(), 500);
+    }
+
+    // Documents list modal
+    function openDocsList() {
+      document.getElementById('docsModal').style.display = 'flex';
+      loadDocsList();
+    }
+
+    function closeDocsList() {
+      document.getElementById('docsModal').style.display = 'none';
+    }
+
+    async function loadDocsList() {
+      try {
+        const response = await fetch('/api/documents');
+        const docs = await response.json();
+
+        const html = docs.map(doc => `
+          <div class="doc-item">
+            <div class="doc-icon">📄</div>
+            <div class="doc-name">${escapeHtml(doc.name)}</div>
+          </div>
+        `).join('');
+
+        document.getElementById('docsList').innerHTML = html || '<p style="text-align: center; color: #999;">No documents uploaded yet</p>';
+      } catch (error) {
+        console.error('Error loading documents:', error);
+      }
+    }
+
+    // Utility function
+    function escapeHtml(text) {
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>\"']/g, m => map[m]);
+    }
+
+    // Render a plain text string into a container
+    function renderWithLineNumbers(containerEl, text, which) {
+      if (!containerEl) return;
+      containerEl.innerHTML = '';
+      const wrapper = document.createElement('div');
+      wrapper.className = 'line-container';
+
+      const content = document.createElement('div');
+      content.className = 'line-content editable';
+      content.id = which + 'Editable';
+      content.contentEditable = editingEnabled ? 'true' : 'false';
+      content.oninput = which === 'base' ? onBaseEdit : onCompareEdit;
+
+      // preserve original newlines directly so blank lines render in the preview
+      content.textContent = text || '';
+
+      wrapper.appendChild(content);
+      containerEl.appendChild(wrapper);
+      syncEditorState();
+    }
+
+    // Convert HTML (from mammoth) to cleaned plain text preserving block breaks
+    function htmlToPlainText(html) {
+      if (!html) return '';
+      const temp = document.createElement('div');
+      temp.innerHTML = html;
+
+      const blockTags = new Set(['P','DIV','BR','LI','UL','OL','H1','H2','H3','H4','H5','H6','TR','TD','TH','SECTION','ARTICLE']);
+      let out = '';
+
+      function walk(node) {
+        if (!node) return;
+        if (node.nodeType === Node.TEXT_NODE) {
+          const t = node.nodeValue.replace(/\s+/g, ' ');
+          if (t) {
+            // ensure spacing between adjacent alnum tokens
+            if (out && /[A-Za-z0-9]$/.test(out) && /^[A-Za-z0-9]/.test(t)) out += ' ';
+            out += t;
+          }
+          return;
+        }
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const name = node.nodeName;
+          if (blockTags.has(name)) {
+            // add newline if not at start
+            if (out && !out.endsWith('\n')) out += '\n';
+          }
+          // recurse children
+          node.childNodes.forEach(child => walk(child));
+          if (blockTags.has(name)) {
+            if (!out.endsWith('\n')) out += '\n';
+          } else {
+            // insert a space between inline siblings where necessary
+            if (node.nextSibling && node.nextSibling.nodeType === Node.TEXT_NODE) {
+              // nothing special
+            }
+          }
+        }
+      }
+
+      walk(temp);
+
+       // normalize spaces and punctuation spacing while preserving blank lines
+      out = out.replace(/\u00A0/g, ' ')
+           .replace(/\s+([.,:;!?])/g, '$1')
+         .replace(/[ \t]+\n/g, '\n')
+         .replace(/\n[ \t]+/g, '\n')
+           .replace(/ {2,}/g, ' ');
+
+      // split joined camel/capitalized words (ClinicPatient -> Clinic Patient)
+      out = out.replace(/([a-z])([A-Z])/g, '$1 $2');
+
+      return out;
+    }
+
+    // Retrieve the editable plain-text content for base/compare
+    function getEditableContent(which) {
+      const inner = document.getElementById(which + 'Editable');
+      if (inner) return inner.textContent || '';
+      const outer = document.getElementById(which + 'Content');
+      return outer ? outer.textContent || '' : '';
+    }
+
+    // Render a line's word diff (if provided) or escape plain text
+    function renderLineWords(wordDiff, plainText) {
+      if (!wordDiff) {
+        return String(plainText || '')
+          .split(/(\s+)/)
+          .map(part => {
+            if (/^\s+$/.test(part)) return part.replace(/\n/g, '<br>');
+            if (!part) return '';
+            return `<span class="word same">${escapeHtml(part)}</span>`;
+          })
+          .join('');
+      }
+      return wordDiff.map(w => {
+        const cls = w.type === 'added' ? 'added' : w.type === 'removed' ? 'removed' : 'same';
+        return `<span class="word ${cls}">${escapeHtml(w.word)}</span>`;
+      }).join(' ');
+    }
+
+    // Toggle page (side-by-side) view
+    function togglePageView() {
+      // Preview panes are intentionally disabled.
+      const pageView = document.getElementById('pageView');
+      const mainContent = document.querySelector('.main-content');
+      if (pageView) pageView.style.display = 'none';
+      if (mainContent) mainContent.style.display = '';
+    }
+
+    // Scroll to a specific aligned line id and highlight briefly
+    function scrollToLine(lineNumber) {
+      const el = document.getElementById(`line-row-${lineNumber}`);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const orig = el.style.backgroundColor;
+      el.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.15)';
+      setTimeout(() => { el.style.boxShadow = ''; }, 1600);
+    }
+
+    // Handle combined group click: scroll and highlight inline words
+    function onCombinedGroupClick(type, idx) {
+      const g = (window._combinedGroups && window._combinedGroups[type] && window._combinedGroups[type][idx]);
+      if (!g) return;
+      scrollToLine(g.startLine);
+      highlightGroup(g);
+    }
+
+    function clearHighlights() {
+      document.querySelectorAll('#combinedContent .word-highlight').forEach(el => el.classList.remove('word-highlight'));
+      document.querySelectorAll('.format-target').forEach(el => el.classList.remove('format-target'));
+      document.querySelectorAll('[id^="line-row-"]').forEach(el => el.style.outline = '');
+    }
+
+    function normalizeWord(w) {
+      return w.replace(/[.,;:()"'`\[\]]/g, '').trim().toLowerCase();
+    }
+
+    function highlightGroup(g) {
+      clearHighlights();
+      const words = [];
+      (g.baseSnippet || []).forEach(s => s.split(/\s+/).forEach(w => words.push(normalizeWord(w))));
+      (g.compareSnippet || []).forEach(s => s.split(/\s+/).forEach(w => words.push(normalizeWord(w))));
+      const wordSet = new Set(words.filter(Boolean));
+
+      // Highlight inline combined words that match
+      document.querySelectorAll('#combinedContent .word').forEach(span => {
+        const t = normalizeWord(span.textContent || '');
+        if (wordSet.has(t)) span.classList.add('word-highlight');
+      });
+
+      // highlight the aligned row if available
+      const rowEl = document.getElementById(`line-row-${g.startLine}`);
+      if (rowEl) rowEl.style.outline = '3px solid rgba(59,130,246,0.12)';
+    }
+
+    // Initialize
+    updateDocumentSelectors();
+  </script>
+</body>
+</html>
